@@ -5,15 +5,16 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Conv2D, Dense, Flatten, MaxPool2D, GlobalAveragePooling2D
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 import numpy as np
+import cv2
 
 class LoadModel(object):
-    def __init__(self, input_shape, weights):
+    def __init__(self, input_shape, weights = None):
         self.input_shape = input_shape
         self.weights = weights
         self.model = self.build_model()
 
     def build_model(self):
-        resnet50 = ResNet50(include_top=False, input_shape=(256, 256, 3), weights='')
+        resnet50 = ResNet50(include_top=False, input_shape=(256, 256, 3), weights=None)
         x = Flatten()(resnet50.layers[-1].output)
         x = Dense(units=16, activation='relu')(x)
         x = Dense(units=32, activation='relu')(x)
@@ -22,11 +23,13 @@ class LoadModel(object):
         model = Model(resnet50.inputs, last)
         model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-        model.load_weights(self.weights)
+        if self.weights:
+            model.load_weights(self.weights)
 
         return model
 
     def predict_image(self, image):
+        image = cv2.resize(image, (256, 256))
         image = image.reshape((1, self.input_shape[0], self.input_shape[1], self.input_shape[2]))
         prediction = np.argmax(self.model.predict(image))
-        return prediction
+        return str(prediction)
