@@ -17,7 +17,7 @@ import cv2
 physical_devices = tf.config.experimental.list_physical_devices('GPU')
 tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
-class CornModel(object):
+class AppleModel(object):
     def __init__(self, input_shape=(256, 256, 3), weights=None):
         self.input_shape = input_shape
         self.weights = weights 
